@@ -8,7 +8,7 @@ class IgsSite:
         self.site_name = site_name
         self.base_log_url = "https://files.igs.org/pub/station/log/"
 
-    def get_geo_cords(self):
+    def get_log_link(self) -> str:
         logging.info("Подключение к https://files.igs.org")
         response = rq.get(self.base_log_url)
 
@@ -18,14 +18,15 @@ class IgsSite:
             soup = BeautifulSoup(response.text, "html.parser")
             regex = re.compile(re.escape(self.site_name), re.IGNORECASE)
 
-            links = soup.find_all('a', string=regex)
-            return [link['href'] for link in links if link.has_attr('href')]
+            href = soup.find_all('a', string=regex)[0]['href']
+            log_name = href.split('/')[-1]
 
+            return self.base_log_url + log_name
         else:
             logging.error(f"Ошибка подключения. Код ответа: {response.status_code}")
-            return []
+            return ""
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     igs = IgsSite('leij')
-    print(igs.get_geo_cords())
+    print(igs.get_log_link())
