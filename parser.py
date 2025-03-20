@@ -1,48 +1,27 @@
 import pprint
 from datetime import timedelta
+import csv
 
 
 class DataParser:
     def __init__(self, filename: str):
         self.filename = filename
-        self.data = {}
-        self.parse_to_sat_dict()
+        self.data = self.parse_to_sat_dict()
 
-    # def parse_to_string_dict(self):
-    #     current_epoch = ""
-    #     with open(self.filename, 'r') as f:
-    #         for line in f:
-    #             if not line.startswith('   '):
-    #                 current_epoch = line.strip().split('.')[0]
-    #                 self.data[current_epoch] = []
-    #             else:
-    #                 line = line.strip()
-    #                 sat = {}
-    #                 sat['satid'], sat['ro'], sat['P1'], sat['P2'], sat['L1'], sat['L2'], sat['Mw'], sat['Md'], sat[
-    #                     'Td'], sat['Tw'], sat['Tw_estimate'], sat['dt'], sat['dTrec_estimate'], sat['A'], sat[
-    #                     'windup_metr'], sat['elevation'], sat['x_sat'], sat['y_sat'], sat['z_sat'], sat['P3'], sat[
-    #                     'L3'], sat['R_geom'] = tuple(line.split('\t'))
-    #                 sat_data = {sat['satid']: sat}
-    #                 self.data[current_epoch].append(sat_data)
+    def convert_to_csv(self):
+        input_data = self.parse_to_string_dict()
+        fieldnames = ['epoch', 'satid', 'ro', 'P1', 'P2', 'L1', 'L2', 'Mw', 'Md', 'Td', 'Tw','Tw_estimate', 'dt', 'dTrec_estimate', 'A',  'windup_metr', 'elevation', 'x_sat', 'y_sat', 'z_sat', 'P3', 'L3', 'R_geom']
+        csv_filename = self.filename.split('.')[0] + '.csv'
 
-    def parse_to_sat_dict(self):
-        current_epoch = ""
-        with open(self.filename, 'r') as f:
-            for line in f:
-                if not line.startswith('   '):
-                    current_epoch = self.parse_time(line.strip().split('.')[0])
-                    self.data[current_epoch] = []
-                else:
-                    line = line.strip()
-                    sat = {}
-                    sat['satid'], sat['ro'], sat['P1'], sat['P2'], sat['L1'], sat['L2'], sat['Mw'], sat['Md'], sat[
-                        'Td'], sat['Tw'], sat['Tw_estimate'], sat['dt'], sat['dTrec_estimate'], sat['A'], sat[
-                        'windup_metr'], sat['elevation'], sat['x_sat'], sat['y_sat'], sat['z_sat'], sat['P3'], sat[
-                        'L3'], sat['R_geom'] = tuple(line.split('\t'))
-                    vision = SatVision(sat, current_epoch)
-                    self.data[current_epoch].append(vision)
+        with open(csv_filename, 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for epoch in input_data.keys():
+                for sat in input_data[epoch]:
+                    sat['epoch'] = epoch
+                    writer.writerow(sat)
 
-    def epoch_to_sat_dict(self):
+    def epoch_to_sat_dict(self) -> dict:
         sat_data = {}
         for epoch in self.data.keys():
             for satellite in self.data[epoch]:
@@ -52,7 +31,44 @@ class DataParser:
                     sat_data[satellite.satid].append(satellite)
         return sat_data
 
-    def parse_time(self, time_str):
+    def parse_to_string_dict(self) -> dict:
+        current_epoch = ""
+        data = {}
+        with open(self.filename, 'r') as f:
+            for line in f:
+                if not line.startswith('   '):
+                    current_epoch = line.strip().split('.')[0]
+                    data[current_epoch] = []
+                else:
+                    line = line.strip()
+                    sat = {}
+                    sat['satid'], sat['ro'], sat['P1'], sat['P2'], sat['L1'], sat['L2'], sat['Mw'], sat['Md'], sat[
+                        'Td'], sat['Tw'], sat['Tw_estimate'], sat['dt'], sat['dTrec_estimate'], sat['A'], sat[
+                        'windup_metr'], sat['elevation'], sat['x_sat'], sat['y_sat'], sat['z_sat'], sat['P3'], sat[
+                        'L3'], sat['R_geom'] = tuple(line.split('\t'))
+                    data[current_epoch].append(sat)
+        return data
+
+    def parse_to_sat_dict(self) -> dict:
+        current_epoch = ""
+        data = {}
+        with open(self.filename, 'r') as f:
+            for line in f:
+                if not line.startswith('   '):
+                    current_epoch = self.parse_time(line.strip().split('.')[0])
+                    data[current_epoch] = []
+                else:
+                    line = line.strip()
+                    sat = {}
+                    sat['satid'], sat['ro'], sat['P1'], sat['P2'], sat['L1'], sat['L2'], sat['Mw'], sat['Md'], sat[
+                        'Td'], sat['Tw'], sat['Tw_estimate'], sat['dt'], sat['dTrec_estimate'], sat['A'], sat[
+                        'windup_metr'], sat['elevation'], sat['x_sat'], sat['y_sat'], sat['z_sat'], sat['P3'], sat[
+                        'L3'], sat['R_geom'] = tuple(line.split('\t'))
+                    vision = SatVision(sat, current_epoch)
+                    data[current_epoch].append(vision)
+        return data
+
+    def parse_time(self, time_str) -> timedelta:
         h, m, s = tuple(map(int, time_str.split(':')))
         return timedelta(hours=h, minutes=m, seconds=s)
 
@@ -89,3 +105,4 @@ class SatVision:
 
 if __name__ == '__main__':
     parser = DataParser("data/leij_1-10.dat")
+    parser.convert_to_csv()
