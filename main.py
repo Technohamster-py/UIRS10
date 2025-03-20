@@ -27,9 +27,13 @@ if __name__ == '__main__':
     for sat_id, sat in sat_data.items():
         x, y, z = sat['x_sat'].values, sat['y_sat'].values, sat['z_sat'].values
         epoch = sat['epoch'].values
+        V = []
+
 
         for i in range(len(x)-1):
             dx = (x[i+1] - x[i]) / DELTA_T
             dy = (y[i+1] - y[i]) / DELTA_T
             dz = (z[i+1] - z[i]) / DELTA_T
-            V = np.sqrt(dx**2 + dy**2 + dz**2)
+            V.append(np.sqrt(dx**2 + dy**2 + dz**2))
+
+        V_average = sum(V) / len(V)
