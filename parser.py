@@ -8,7 +8,7 @@ class DataParser:
         self.filename = filename
         self.data = self.parse_to_sat_dict()
 
-    def convert_to_csv(self):
+    def convert_to_csv(self) -> str:
         input_data = self.parse_to_string_dict()
         fieldnames = ['epoch', 'satid', 'ro', 'P1', 'P2', 'L1', 'L2', 'Mw', 'Md', 'Td', 'Tw','Tw_estimate', 'dt', 'dTrec_estimate', 'A',  'windup_metr', 'elevation', 'x_sat', 'y_sat', 'z_sat', 'P3', 'L3', 'R_geom']
         csv_filename = self.filename.split('.')[0] + '.csv'
@@ -20,6 +20,7 @@ class DataParser:
                 for sat in input_data[epoch]:
                     sat['epoch'] = epoch
                     writer.writerow(sat)
+        return csv_filename
 
     def epoch_to_sat_dict(self) -> dict:
         sat_data = {}
