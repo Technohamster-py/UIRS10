@@ -53,6 +53,7 @@ class IgsSite:
         self.latitude, self.longitude = 0.0, 0.0
         self.city_name = ''
         self.get_geo_cords()
+        self.x, self.y, self.z = 0.0, 0.0, 0.0
 
     def __str__(self):
         return f"IGS site:\t{self.city_name}:\tLATITUDE: {self.deg_latitude},\tLONGITUDE: {self.deg_longitude}"
@@ -89,14 +90,25 @@ class IgsSite:
             for line in log_text.split('\n'):
                 if "Latitude" in line:
                     lat = re.search(r'[+-]\d+\.?\d+', line).group(0)
+                    self.dec_latitude = lat
                     self.latitude = dms_to_decimal(lat)
                     self.deg_latitude = printable_degrees(lat)
                 if "Longitude" in line:
                     lon = re.search(r'[+-]\d+\.?\d+', line).group(0)
+                    self.dec_longitude = lon
                     self.longitude = dms_to_decimal(lon)
                     self.deg_longitude = printable_degrees(lon)
                 if "City or Town" in line:
                     self.city_name = line.strip().split(':')[1][1:]
+                if "X coordinate (m)" in line:
+                    x = re.search(r'[+-]?\d+\.?\d+', line).group(0)
+                    self.x = float(x)
+                if "Y coordinate (m)" in line:
+                    y = re.search(r'[+-]?\d+\.?\d+', line).group(0)
+                    self.y = float(y)
+                if "Z coordinate (m)" in line:
+                    z = re.search(r'[+-]?\d+\.?\d+', line).group(0)
+                    self.z = float(z)
 
 
 if __name__ == '__main__':
