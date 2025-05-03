@@ -19,7 +19,7 @@ def calculate_azimuth(site_cords: tuple, sat_cords: tuple):
     delta_y = y_sat - y_site
     delta_z = z_sat - z_site
 
-    azimuth = math.atan(delta_x/delta_y)
+    azimuth = math.atan(delta_y/delta_x)
     return azimuth
 
 
@@ -62,10 +62,10 @@ if __name__ == '__main__':
 
             d_theta = (elev[i+1] - elev[i]) / DELTA_T
             d_azim = (calculate_azimuth(site_cords, (x[i+1], y[i+1], z[i+1])) - calculate_azimuth(site_cords, (x[i], y[i], z[i]))) / DELTA_T
-            w = np.sqrt(d_theta**2 + d_azim**2)
+            w = d_azim / DELTA_T
             W.append(w)
 
-            table.add_row([epoch, v, w])
+            table.add_row([epoch[i], v, w])
 
         velocities.append(V)
         angular_velocities.append(W)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     plt.legend(loc='best')
     plt.suptitle(f"Velocities of Satellites")
     plt.savefig("figures/velocities.png")
-    plt.show()
+    # plt.show()
 
     plt.figure(figsize=(12, 12))
     for i in range(len(sats)):
@@ -93,4 +93,4 @@ if __name__ == '__main__':
     plt.legend(loc='best')
     plt.suptitle(f"Angular velocities of Satellites")
     plt.savefig("figures/angular_velocities.png")
-    plt.show()
+    # plt.show()
