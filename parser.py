@@ -1,6 +1,7 @@
 import pprint
 from datetime import timedelta
 import csv
+import logging
 
 
 class DataParser:
@@ -9,6 +10,7 @@ class DataParser:
         self.data = self.parse_to_sat_dict()
 
     def convert_to_csv(self) -> str:
+        logging.info(f'Converting {self.filename} to csv')
         input_data = self.parse_to_string_dict()
         fieldnames = ['epoch',              # Эпоха (Ч:ММ:С)
                       'satid',              # номер спутника
@@ -46,6 +48,7 @@ class DataParser:
         return csv_filename
 
     def epoch_to_sat_dict(self) -> dict:
+        logging.info(f'Converting {self.filename} to sat dict')
         sat_data = {}
         for epoch in self.data.keys():
             for satellite in self.data[epoch]:
@@ -56,6 +59,7 @@ class DataParser:
         return sat_data
 
     def parse_to_string_dict(self) -> dict:
+        logging.info(f'Parsing {self.filename} to string dict')
         current_epoch = ""
         data = {}
         with open(self.filename, 'r') as f:
@@ -75,6 +79,7 @@ class DataParser:
         return data
 
     def parse_to_sat_dict(self) -> dict:
+        logging.info(f'Parsing {self.filename} to sat dict')
         current_epoch = ""
         data = {}
         with open(self.filename, 'r') as f:

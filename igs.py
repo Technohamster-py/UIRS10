@@ -35,7 +35,7 @@ class IgsSite:
 
     def __str__(self):
         return (f"IGS site:\t{self.city_name}:\tLATITUDE: {self.deg_latitude},\tLONGITUDE: {self.deg_longitude}\n"
-                f"\t\tX: {self.x}, Y: {self.y}, Z: {self.z}")
+                f"\t\t\tX: {self.x}, Y: {self.y}, Z: {self.z}")
 
     def get_log_link(self) -> str:
         logging.info("get_log_link")
