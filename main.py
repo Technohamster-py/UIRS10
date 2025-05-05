@@ -86,7 +86,7 @@ if __name__ == '__main__':
     for i in range(len(sats)):
         plt.plot(epochs[i], angular_velocities[i], label=sats[i], color=colors[i])
         plt.axhline(sum(angular_velocities[i])/len(angular_velocities[i]), color=colors[i], linestyle='--')
-    plt.xlabel("Epoch")
+    plt.xlabel("Epoch [s]")
     plt.ylabel("Angular Velocity [rad/s]")
     ax = plt.gca()
     plt.legend(loc='best')
