@@ -61,7 +61,8 @@ class DataParser:
         with open(self.filename, 'r') as f:
             for line in f:
                 if not line.startswith('   '):
-                    current_epoch = line.strip().split('.')[0]
+                    epoch = line.strip().split('.')[0].split(':')
+                    current_epoch = float(epoch[0]) * 3600 + float(epoch[1]) * 60 + float(epoch[2])
                     data[current_epoch] = []
                 else:
                     line = line.strip()
@@ -125,8 +126,3 @@ class SatVision:
 
     def __str__(self):
         return f"{self.satid=}\t{self.epoch}"
-
-
-if __name__ == '__main__':
-    parser = DataParser("data/leij_1-10.dat")
-    parser.convert_to_csv()
