@@ -12,6 +12,7 @@ class DataParser:
     def convert_to_csv(self) -> str:
         logging.info(f'Converting {self.filename} to csv')
         input_data = self.parse_to_string_dict()
+        # Все из задания
         fieldnames = ['epoch',              # Эпоха (Ч:ММ:С)
                       'satid',              # номер спутника
                       'ro',                 # скорректированная дальность до спутника с учётом ряда смещений в измерениях
@@ -36,18 +37,23 @@ class DataParser:
                       'L3',                 # ионосферосвободная комбинация измерений псевдофазы L1 и L2 (метры)
                       'R_geom'              # геометрическая дальность до спутника (метры)
                       ]
-        csv_filename = self.filename.split('.')[0] + '.csv'
+        csv_filename = self.filename.split('.')[0] + '.csv' # формируем имя файла csv
 
+        # Открываем файл csv и записываем в него табличку
         with open(csv_filename, 'w', newline='') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-            writer.writeheader()
-            for epoch in input_data.keys():
-                for sat in input_data[epoch]:
-                    sat['epoch'] = epoch
-                    writer.writerow(sat)
+            writer.writeheader() # записываем заголовки (из задания)
+            for epoch in input_data.keys(): # проходимся по эпохам
+                for sat in input_data[epoch]: # проходимся по спутникам внутри эпохи
+                    sat['epoch'] = epoch    # Записываем значение эпохи в данные о спутнике
+                    writer.writerow(sat)    # Записываем данные о спутнике в файл (одна строчка)
         return csv_filename
 
     def epoch_to_sat_dict(self) -> dict:
+        """
+        Конвертируем словарь {эпоха : SatVision} в словарь {спутник : SatVision}
+        :return:
+        """
         logging.info(f'Converting {self.filename} to sat dict')
         sat_data = {}
         for epoch in self.data.keys():
@@ -59,6 +65,10 @@ class DataParser:
         return sat_data
 
     def parse_to_string_dict(self) -> dict:
+        """
+        Парсим исходный файл в словарь {эпоха: данные спутников в эту эпоху (тоже словарь)}
+        :return:
+        """
         logging.info(f'Parsing {self.filename} to string dict')
         current_epoch = ""
         data = {}
@@ -79,26 +89,35 @@ class DataParser:
         return data
 
     def parse_to_sat_dict(self) -> dict:
-        logging.info(f'Parsing {self.filename} to sat dict')
+        """
+        Парсим исходный файл в словарь {эпоха: данные спутников в эту эпоху (Класс SatVision)}
+        :return:
+        """
+        logging.info(f'Parsing {self.filename} to sat dict') # Отправляем сообщение в лог
         current_epoch = ""
-        data = {}
+        data = {}   # Делаем заготовки данных
         with open(self.filename, 'r') as f:
-            for line in f:
-                if not line.startswith('   '):
+            for line in f:  # Перебираем исходный файл по строчкам
+                if not line.startswith('   '):  # Находим строчку, в которой записана эпоха
                     current_epoch = self.parse_time(line.strip().split('.')[0])
-                    data[current_epoch] = []
+                    data[current_epoch] = []    # Делаем заготовку данных внутри эпохи
                 else:
                     line = line.strip()
                     sat = {}
                     sat['satid'], sat['ro'], sat['P1'], sat['P2'], sat['L1'], sat['L2'], sat['Mw'], sat['Md'], sat[
                         'Td'], sat['Tw'], sat['Tw_estimate'], sat['dt'], sat['dTrec_estimate'], sat['A'], sat[
                         'windup_metr'], sat['elevation'], sat['x_sat'], sat['y_sat'], sat['z_sat'], sat['P3'], sat[
-                        'L3'], sat['R_geom'] = tuple(line.split('\t'))
-                    vision = SatVision(sat, current_epoch)
-                    data[current_epoch].append(vision)
+                        'L3'], sat['R_geom'] = tuple(line.split('\t'))  # Собираем данные по спутнику в словарь
+                    vision = SatVision(sat, current_epoch)  # Создаем элемент класса SatVision
+                    data[current_epoch].append(vision)  # Добавляем его в список спутников в конкретную эпоху
         return data
 
     def parse_time(self, time_str) -> timedelta:
+        """
+        парсим строчку времени в формат timedelta
+        :param time_str:
+        :return:
+        """
         h, m, s = tuple(map(int, time_str.split(':')))
         return timedelta(hours=h, minutes=m, seconds=s)
 

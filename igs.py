@@ -38,20 +38,24 @@ class IgsSite:
                 f"\t\t\tX: {self.x}, Y: {self.y}, Z: {self.z}")
 
     def get_log_link(self) -> str:
+        """
+        Получаем ссылку на конкретный журнал
+        :return:
+        """
         logging.info("get_log_link")
         logging.info("Подключение к https://files.igs.org")
-        response = rq.get(self.base_log_url)
+        response = rq.get(self.base_log_url)    # Подключаемся к странице с журналами
 
         if response.status_code == 200:
             logging.info(f"Успешное подключение. Код ответа: {response.status_code}")
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            regex = re.compile(re.escape(self.site_name), re.IGNORECASE)
+            soup = BeautifulSoup(response.text, "html.parser")  # Включаем парсер
+            regex = re.compile(re.escape(self.site_name), re.IGNORECASE)    # Генерим регулярное выражение для поиска ссылки
 
-            href = soup.find_all('a', string=regex)[0]['href']
-            log_name = href.split('/')[-1]
+            href = soup.find_all('a', string=regex)[0]['href']  # Ищем на странице ссылку на журнал
+            log_name = href.split('/')[-1]  # получаем имя журнала из ссылки
 
-            return self.base_log_url + log_name
+            return self.base_log_url + log_name # Возвращаем ссылку на журнал
         else:
             logging.error(f"Ошибка подключения. Код ответа: {response.status_code}")
             return ""
@@ -59,19 +63,19 @@ class IgsSite:
     def get_geo_cords(self):
         logging.info("get_geo_cords")
         logging.info(f"Подключение к {self.log_url}")
-        response = rq.get(self.log_url)
+        response = rq.get(self.log_url) # Подключаемся к странице журнала
 
         if response.status_code == 200:
             logging.info(f"Успешное подключение. Код ответа: {response.status_code}")
 
             logging.info("Парсинг журнала")
-            log_text = response.text
-            for line in log_text.split('\n'):
-                if "Latitude" in line:
+            log_text = response.text    # Получаем текст журнала
+            for line in log_text.split('\n'):   # Проходимся по строчкам
+                if "Latitude" in line:  # Находим шароту
                     lat = re.search(r'[+-]\d+\.?\d+', line).group(0)
                     self.dec_latitude = lat
                     self.deg_latitude = printable_degrees(lat)
-                if "Longitude" in line:
+                if "Longitude" in line: # Находим долготу
                     lon = re.search(r'[+-]\d+\.?\d+', line).group(0)
                     self.dec_longitude = lon
                     self.deg_longitude = printable_degrees(lon)
